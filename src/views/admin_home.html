@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Admin Dashboard</title>
+		<link
+			rel="stylesheet"
+			href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+
+		<style>
+			/* Style for table rows on hover */
+			.clickable-row:hover {
+				cursor: pointer;
+				text-decoration: underline;
+			}
+		</style>
+	</head>
+	<body>
+		<nav class="navbar navbar-expand-lg navbar-light bg-dark border-bottom border-body">
+			<a class="navbar-brand text-light fs-1" href="#">Admin Dashboard</a>
+			<div class="collapse navbar-collapse" id="navbarNav">
+				<ul class="navbar-nav ml-auto">
+					<li class="nav-item">
+						<a class="nav-link text-light" href="/" id="logoutButton">Logout</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+
+		<div class="container mt-5">
+			<h1>Deposit Requests</h1>
+			<table class="table" id="depositsTable">
+				<thead>
+					<tr>
+						<th scope="col">#</th>
+						<th scope="col">Client's Name</th>
+						<th scope="col">Account Number</th>
+						<th scope="col">Nominal Deposit</th>
+						<th scope="col">Deposit Status</th>
+						<th scope="col">Submitted At</th>
+					</tr>
+				</thead>
+				<tbody>
+					<!-- Data rows will be inserted here -->
+				</tbody>
+			</table>
+		</div>
+
+		<!-- Modal -->
+		<div
+			class="modal fade"
+			id="depositDetailModal"
+			tabindex="-1"
+			role="dialog"
+			aria-labelledby="depositDetailModalLabel"
+			aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="depositDetailModalLabel">Deposit Details</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<!-- Deposit details will be populated here -->
+						<div id="modalDepositDetails"></div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" id="approveButton" class="btn btn-success">Approve</button>
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+		<script src="/js/admin_home.js"></script>
+		<!-- Custom JS for admin home page -->
+	</body>
+</html>
