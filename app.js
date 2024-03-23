@@ -1,4 +1,5 @@
 const express = require("express");
+const nodemailer = require("nodemailer");
 const multer = require("multer");
 const fs = require("fs");
 const app = express();
@@ -33,6 +34,11 @@ app.get("/", (req, res) => {
 
 app.get("/client", (req, res) => {
 	const targetUrl = path.join(HTML_BASE_URL, "client_home.html");
+	res.sendFile(targetUrl);
+});
+
+app.get("/settings", (req, res) => {
+	const targetUrl = path.join(HTML_BASE_URL, "settings.html");
 	res.sendFile(targetUrl);
 });
 
@@ -89,7 +95,46 @@ app.post("/saveDeposit", upload.single("depositReceipt"), (req, res) => {
 		if (err) {
 			console.error("Failed to save form data as JSON:", err);
 			return res.status(500).json({ message: "Failed to save deposit information" });
+		} else {
+			console.log("OK");
 		}
+
+		const settingsPath = path.join(__dirname, "public", "assets", "data", "settings.json");
+		fs.readFile(settingsPath, "utf8", (err, settingsData) => {
+			if (err) {
+				console.error("Error reading settings for email:", err);
+				return;
+			}
+
+			const { email } = JSON.parse(settingsData);
+			if (email) {
+				// Set up transporter
+				let transporter = nodemailer.createTransport({
+					host: "mail.soliditi.tech",
+					port: 465,
+					secure: true,
+					auth: {
+						user: "noreply@soliditi.tech",
+						pass: "2KLx]c$n@ZaM",
+					},
+				});
+
+				let mailOptions = {
+					from: `New Deposit Request <noreply@soliditi.tech>`,
+					to: email, // Loaded from settings.json
+					subject: "New Deposit Submission",
+					text: "A new deposit has been submitted. Please check the administration panel.", // or HTML body
+				};
+
+				transporter.sendMail(mailOptions, (error, info) => {
+					if (error) {
+						return console.log("Error sending mail:", error);
+					}
+					console.log("Message sent: %s", info.messageId);
+				});
+			}
+		});
+
 		res.json({ message: "Deposit information saved successfully", file: req.file });
 	});
 });
@@ -128,6 +173,40 @@ app.post("/api/approveDeposit", (req, res) => {
 			}
 			res.json({ message: "Deposit status updated to Approved", id });
 		});
+	});
+});
+
+app.post("/api/saveSettings", (req, res) => {
+	const { email } = req.body;
+	if (!email) {
+		return res.status(400).send({ message: "Email is required" });
+	}
+
+	const settings = { email };
+	const filePath = path.join(__dirname, "public", "assets", "data", "settings.json");
+
+	fs.writeFile(filePath, JSON.stringify(settings, null, 2), (err) => {
+		if (err) {
+			console.error("Error writing file:", err);
+			return res.status(500).send({ message: "Error saving settings" });
+		}
+		res.send({ message: "Settings saved successfully" });
+	});
+});
+
+app.get("/api/getSettings", (req, res) => {
+	const filePath = path.join(__dirname, "public", "assets", "data", "settings.json");
+
+	fs.readFile(filePath, (err, data) => {
+		if (err) {
+			// Handle the case where the file might not exist yet
+			if (err.code === "ENOENT") {
+				return res.json({ email: "" }); // No settings found, return default
+			}
+			console.error("Error reading file:", err);
+			return res.status(500).send({ message: "Error fetching settings" });
+		}
+		res.json(JSON.parse(data));
 	});
 });
 
